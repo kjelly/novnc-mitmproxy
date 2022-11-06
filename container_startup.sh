@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo $PASSWORD > /tmp/password
 fc-cache -fv
 
