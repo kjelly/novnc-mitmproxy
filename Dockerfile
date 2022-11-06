@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1.4
+
 FROM ubuntu:20.04
 
 # for the browser VNC client
@@ -7,7 +9,7 @@ EXPOSE 5901
 ENV APT_INSTALL_PRE="apt -o Acquire::ForceIPv4=true update && DEBIAN_FRONTEND=noninteractive apt -o Acquire::ForceIPv4=true install -y --no-install-recommends"
 ENV APT_INSTALL_POST="&& apt clean -y && rm -rf /var/lib/apt/lists/*"
 # Make sure the dependencies are met
-RUN eval ${APT_INSTALL_PRE} tigervnc-standalone-server tigervnc-common git net-tools python python-numpy ca-certificates scrot openbox wget xz-utils curl sudo busybox supervisor psmisc jq moreutils firefox fonts-droid-fallback xfce4-terminal locales fonts-noto-color-emoji wget libnss3-tools${APT_INSTALL_POST}
+RUN eval ${APT_INSTALL_PRE} tini tigervnc-standalone-server tigervnc-common git net-tools python python-numpy ca-certificates scrot openbox wget xz-utils curl sudo busybox supervisor psmisc jq moreutils firefox fonts-droid-fallback xfce4-terminal locales fonts-noto-color-emoji wget libnss3-tools ${APT_INSTALL_POST}
 
 # Install VNC. Requires net-tools, python and python-numpy
 RUN git clone --branch v1.2.0 --single-branch https://github.com/novnc/noVNC.git /opt/noVNC
@@ -51,4 +53,4 @@ RUN mkdir -p /home/dockerUser/.config;chown -R 1000:1000 /home/dockerUser/.confi
 USER dockerUser
 RUN curl https://raw.githubusercontent.com/kjelly/auto_config/master/scripts/init_nvim.sh |bash
 
-ENTRYPOINT ["/opt/container_startup.sh"]
+ENTRYPOINT ["/usr/bin/tini", "-s", "-g", "--", "/opt/container_startup.sh"]
